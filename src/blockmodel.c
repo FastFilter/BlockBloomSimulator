@@ -136,6 +136,7 @@ size_t findBestLaneSize(size_t HowManyKeys, size_t bitbudget, size_t BlockSizeIn
     size_t valid_lanes[] = {8,16,32,64};
     for(size_t laneindex = 0; laneindex < sizeof(valid_lanes)/sizeof(valid_lanes[0]); laneindex++) {
         size_t lanesize = valid_lanes[laneindex];
+        if(lanesize > m.BlockSizeInBits) continue;
         m.BitsPerKeyPerBlock = m.BlockSizeInBits / lanesize;
         // we take the averge of several attempts
         double collisionrate = 0;
@@ -153,6 +154,24 @@ size_t findBestLaneSize(size_t HowManyKeys, size_t bitbudget, size_t BlockSizeIn
     return BestLanes;
 }
 
+double findLaneCollisionRate(size_t HowManyKeys, size_t bitbudget, size_t BlockSizeInBits, size_t lanesize, bool verbose) {
+    model_t m;
+    m.NumberOfBlocks = bitbudget / BlockSizeInBits;
+    m.BlockSizeInBits = BlockSizeInBits;
+    size_t howmanytests = 100000;
+    bitset_t * b = bitset_create_with_capacity(bitbudget);
+    m.BitsPerKeyPerBlock = m.BlockSizeInBits / lanesize;
+    // we take the averge of several attempts
+    double collisionrate = 0;
+    size_t attempts = HowManyKeys < 10000000 ? 5 : 1; 
+    for(int i = 0; i < attempts; i++) {
+        collisionrate += simulate_lane(HowManyKeys, m, howmanytests, b);
+    }
+    collisionrate /= attempts;
+    bitset_free(b);
+    return collisionrate;
+}
+
 
 void describeBloom(size_t bitsperkey) {
     double bestbitsperbucket = bitsperkey * log(2);
@@ -162,7 +181,7 @@ void describeBloom(size_t bitsperkey) {
 }
 
 void assessBloomCase(size_t HowManyKeys, bool verbose)  {
-    for(size_t bitsperkey = 8; bitsperkey <= 16; bitsperkey +=4) {
+    for(size_t bitsperkey = 8; bitsperkey <= 16; bitsperkey +=1) {
       size_t bitbudget = bitsperkey * HowManyKeys;
       double bestcollisionrate;
       size_t bestbitsperbucket = findBestBitsPerKeyPerBlock(HowManyKeys, bitbudget, bitbudget, &bestcollisionrate, verbose);
@@ -182,11 +201,18 @@ void assessBlockSize(size_t HowManyKeys, size_t BlockSizeInBits, bool verbose)  
 }
 
 void assessBlockSizeLanes(size_t HowManyKeys, size_t BlockSizeInBits, bool verbose)  {
-    for(size_t bitsperkey = 8; bitsperkey <= 16; bitsperkey+=2) {
+    for(size_t bitsperkey = 8; bitsperkey <= 16; bitsperkey+=1) {
       size_t bitbudget = bitsperkey * HowManyKeys;
       double bestcollisionrate;
       size_t bestlane = findBestLaneSize(HowManyKeys, bitbudget, BlockSizeInBits, &bestcollisionrate, verbose);
-      printf("bits per key %3zu best lane size = %zu bits, collision rate = %0.3f %%\n", bitsperkey, bestlane, bestcollisionrate * 100);
+      double colrate8 = findLaneCollisionRate(HowManyKeys, bitbudget,BlockSizeInBits, 8, verbose);
+
+
+
+    double bloombestbitsperbucket = bitsperkey * log(2);
+    double bloombestcollisionrate = pow(2,-bloombestbitsperbucket);
+    printf("bits per key %3zu best lane size = %zu bits, collision rate = %0.3f %% (x %.1f worse than Bloom)  // collion rate at 8 bits is %0.3f %% \n", bitsperkey, bestlane, bestcollisionrate * 100, bestcollisionrate/bloombestcollisionrate, colrate8 * 100);
+
     }
 }
 
@@ -218,8 +244,11 @@ void compute(size_t HowManyKeys ) {
     printf("\n");
     printf("single word (64-bits) \n");
     assessBlockSize(HowManyKeys,64,verbose);
-
+    assessBlockSizeLanes(HowManyKeys,64,verbose);
     printf("\n");
+    printf("single word (32-bits) \n");
+    assessBlockSize(HowManyKeys,32,verbose);
+    assessBlockSizeLanes(HowManyKeys,32,verbose);
 }
 
 int main() {
