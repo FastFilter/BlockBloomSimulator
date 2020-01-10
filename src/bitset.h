@@ -97,6 +97,22 @@ static inline bool bitset_get(const bitset_t *bitset,  size_t i ) {
   return ( bitset->array[shiftedi] & ( ((uint64_t)1) << (i % 64))) != 0 ;
 }
 
+
+static inline bool bitset_set_word(const bitset_t *bitset,  uint64_t w, size_t i) {
+  if (i >= bitset->arraysize) {
+    return false;
+  }
+  bitset->array[i] = w;
+  return true;
+}
+
+static inline uint64_t bitset_get_word(const bitset_t *bitset,  size_t i) {
+  if (i >= bitset->arraysize) {
+    return false;
+  }
+  return bitset->array[i];
+}
+
 /* Count number of bit sets.  */
 size_t bitset_count(const bitset_t *bitset);
 
