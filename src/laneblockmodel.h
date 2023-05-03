@@ -125,10 +125,13 @@ void assessBlockSizeLanes(size_t HowManyKeys, size_t BlockSizeInBits,
 
     double bloombestbitsperbucket = bitsperkey * log(2);
     double bloombestcollisionrate = pow(2, -bloombestbitsperbucket);
+
+    double theoretical_best_bits = log(1.0/beststats.collision_rate) / log(2.0);
+    double inefficiency = (bitsperkey/theoretical_best_bits - 1.0) * 100.0;
     printf("bits per key %3zu best lane size = %zu bits, max density = %0.0f %%, density = %0.0f %%, collision rate = "
-           "%0.3f %% (x %.1f worse than Bloom)  // collision rate at 8 bits is "
+           "%0.3f %% (x %.2f worse than Bloom), inefficiency = %0.1f %%  // collision rate at 8 bits is "
            "%0.3f %% \n",
            bitsperkey, bestlane, density * 100, beststats.density * 100, beststats.collision_rate * 100,
-           beststats.collision_rate / bloombestcollisionrate, colrate8 * 100);
+           beststats.collision_rate / bloombestcollisionrate,  inefficiency, colrate8 * 100);
   }
 }

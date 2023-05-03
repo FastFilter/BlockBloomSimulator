@@ -1,4 +1,4 @@
-all: blockmodel
+all: blockmodel simpleblockmodel
 
 test: blockmodel
 	./blockmodel
@@ -10,5 +10,8 @@ blockmodel: bitset.o src/bitset.h src/blockmodel.c  src/bloommodel.h     src/por
 	cc -O3 -o blockmodel src/blockmodel.c bitset.o -Wall -Isrc -lm
 
 
+simpleblockmodel: bitset.o src/bitset.h src/simpleblockmodel.c  src/bloommodel.h     src/portability.h    src/softblockmodel.h  src/simstat.h src/blockmodel.h     src/laneblockmodel.h src/randomutil.h
+	cc -O3 -o simpleblockmodel src/simpleblockmodel.c bitset.o -Wall -Isrc -lm
+
 clean:
-	rm -f blockmodel bitset.o
+	rm -f blockmodel bitset.o simpleblockmodel

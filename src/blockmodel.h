@@ -104,8 +104,12 @@ void assessBlockSize(size_t HowManyKeys, size_t BlockSizeInBits, bool verbose) {
         HowManyKeys, bitbudget, BlockSizeInBits, &beststats, verbose);
     double density = bestbitsperbucket * 1.0 / bitsperkey;
 
+    double theoretical_best_bits = log(1.0/beststats.collision_rate) / log(2.0);
+    double inefficiency = (bitsperkey/theoretical_best_bits - 1.0) * 100.0;
+    
+
     printf("bits per key %3zu best bits per bucket = %zu, max density = %0.0f %%, density = %0.0f %%, collision rate = "
-           "%0.3f %%\n",
-           bitsperkey, bestbitsperbucket,density * 100,   beststats.density * 100, beststats.collision_rate * 100);
+           "%0.3f %%, inefficiency = %0.1f %% \n",
+           bitsperkey, bestbitsperbucket,density * 100,   beststats.density * 100, beststats.collision_rate * 100, inefficiency);
   }
 }
