@@ -11,7 +11,7 @@ void compute(size_t HowManyKeys) {
   bool verbose = false;
   printf("Number of keys %zu \n", HowManyKeys);
   printf("Full cache line (512-bits) \n");
-  assessBlockSize(HowManyKeys, 512, verbose);
+  assessBlockSize(HowManyKeys, 256, verbose);
 }
 
 int main() {
