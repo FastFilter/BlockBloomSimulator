@@ -7,14 +7,14 @@
 
 void compute(size_t HowManyKeys) {
   bool verbose = false;
- /* printf("Number of keys %zu \n", HowManyKeys);
+  printf("Number of keys %zu \n", HowManyKeys);
   printf(" cache line (512-bits) \n");
   assessBlockSize(HowManyKeys, 512, verbose);
 
   for(size_t window = 8; window <= 512; window*=2) {
     assessWindowedBlockSize(HowManyKeys, 512, window, verbose);
   }
-  printf("\n");*/
+  printf("\n");
 
   printf("quarter cache line (128-bits) \n");
   assessBlockSize(HowManyKeys, 128, verbose);

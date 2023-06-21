@@ -21,22 +21,22 @@ sim_stats_t simulate(size_t HowManyKeys, model_t model, size_t howmanytests,
                 bitset_t *b) {
   bitset_resize(b, model.BlockSizeInBits * model.NumberOfBlocks, true);
   bitset_clear(b);
-size_t factor = 1;
+
   for (size_t i = 0; i < HowManyKeys; i++) {
-    size_t blockindex = random_integer(model.NumberOfBlocks * factor);
+    size_t blockindex = random_integer(model.NumberOfBlocks);
     for (size_t j = 0; j < model.BitsPerKeyPerBlock; j++) {
       size_t bi = random_integer(model.BlockSizeInBits);
-      bitset_set(b, blockindex * model.BlockSizeInBits / factor + bi);
+      bitset_set(b, blockindex * model.BlockSizeInBits + bi);
     }
   }
   size_t matches = 0;
   for (size_t i = 0; i < howmanytests; i++) {
-    size_t blockindex = random_integer(model.NumberOfBlocks * factor);
+    size_t blockindex = random_integer(model.NumberOfBlocks);
     bool is_matched = true;
     for (size_t j = 0; j < model.BitsPerKeyPerBlock; j++) {
       size_t bi = random_integer(model.BlockSizeInBits);
       is_matched =
-          is_matched && bitset_get(b, blockindex * model.BlockSizeInBits  / factor + bi);
+          is_matched && bitset_get(b, blockindex * model.BlockSizeInBits + bi);
     }
     if (is_matched)
       matches++;
