@@ -1,23 +1,29 @@
-#include "blockmodel.h"
-#include "bloommodel.h"
-#include "laneblockmodel.h"
-#include "softblockmodel.h"
+#include "windowedblockmodel.h"
 
+#include "blockmodel.h"
 
 
 
 
 void compute(size_t HowManyKeys) {
   bool verbose = false;
-  printf("Number of keys %zu \n", HowManyKeys);
-  printf("Full cache line (512-bits) \n");
+ /* printf("Number of keys %zu \n", HowManyKeys);
+  printf(" cache line (512-bits) \n");
   assessBlockSize(HowManyKeys, 512, verbose);
-  printf("3/4 cache line (384-bits) \n");
-  assessBlockSize(HowManyKeys, 384, verbose);
-  printf("Half cache line (256-bits) \n");
-  assessBlockSize(HowManyKeys, 256, verbose);
-  printf("Half cache line (128-bits) \n");
+
+  for(size_t window = 8; window <= 512; window*=2) {
+    assessWindowedBlockSize(HowManyKeys, 512, window, verbose);
+  }
+  printf("\n");*/
+
+  printf("quarter cache line (128-bits) \n");
   assessBlockSize(HowManyKeys, 128, verbose);
+
+  for(size_t window = 8; window <= 128; window*=2) {
+    assessWindowedBlockSize(HowManyKeys, 128, window, verbose);
+  }  
+
+  printf("\n");
 }
 
 int main() {
@@ -28,9 +34,10 @@ int main() {
   printf("collision rate is the false negative rate: smaller is better\n");
   printf("In the 'lane' model you have one bit set per lane.\n");
   printf("\n");
-  for(size_t i = 10000; i < 1000000000; i*=10) {
-    compute(i);
-  }
+
+
+  compute(10000000);
+  printf("==========\n\n");
 
   return EXIT_SUCCESS;
 }
